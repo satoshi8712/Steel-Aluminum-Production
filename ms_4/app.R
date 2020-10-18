@@ -43,9 +43,19 @@ ui <- navbarPage(
              p("https://github.com/satoshi8712/milestone_4"),
              h3("Project Progress"),
              p("I am thinking about doing something about foreign direct invest
-               at the moment. I have collected datasets from OECD website as
-               well as the World Bank. I have yet to figure out what is the best
-               way to process data, my apology for the delay.")))
+               at the moment. I have collected two datasets, one  from OECD 
+               website and the other from the World Bank. The OCED one, 
+               DP_LIVE_17102020190158566, mesures 
+               both inflow and outflow of country-specific FDI for each year, 
+               while the WB dataset, API_BM.KLT.DINV.CD.WD_DS2_en_csv_v2_1497113, 
+               is the list of country codes and the corresponding country names. 
+               I am yet to figure out what is the best way to process data, my 
+               apology for the delay. But I have here made a priliminary graoh 
+               about country-specific value of FDI. My plan till next week is to 
+               consolidate my idea as to what variables do I want to look for 
+               and whether there are more appropriate sources of data -- I am 
+               sure that, regarding this sort of economic data, there are 
+               abundnace of dataset.")))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
