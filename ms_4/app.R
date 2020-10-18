@@ -30,7 +30,7 @@ ui <- navbarPage(
     "Milestone 4 - Satoshi Yanaizu",
     tabPanel("Model",
              fluidPage(
-                 titlePanel("Model Title"),
+                 titlePanel("Plot"),
                      mainPanel(plotOutput("line_plot"))
              )),
     tabPanel("Discussion",
