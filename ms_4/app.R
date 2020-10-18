@@ -1,14 +1,8 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+
 library(shiny)
 library(PPBDS.data)
 library(tidyverse)
+
 
 DP_LIVE_17102020190158566 <- read_csv("data/DP_LIVE_17102020190158566.csv", 
                                       col_names = TRUE, 
@@ -33,7 +27,7 @@ API_BM.KLT.DINV.CD.WD_DS2_en_csv_v2_1497113 <- read_csv("data/API_BM.KLT.DINV.CD
     
 # Define UI for application that draws a histogram
 ui <- navbarPage(
-    "Final Project Title",
+    "Milestone 4 - Satoshi Yanaizu",
     tabPanel("Model",
              fluidPage(
                  titlePanel("Model Title"),
@@ -45,11 +39,13 @@ ui <- navbarPage(
               an explanation of why you made them")),
     tabPanel("About", 
              titlePanel("About"),
-             h3("Project Background and Motivations"),
-             p("Hello, this is where I talk about my project."),
-             h3("About Me"),
-             p("My name is Satoshi Yanaizu and I study Social Studies. 
-             You can reach me at satoshi_yanaizu@college.harvard.edu.")))
+             h3("Link to Repository"),
+             p("https://github.com/satoshi8712/milestone_4"),
+             h3("Project Progress"),
+             p("I am thinking about doing something about foreign direct invest
+               at the moment. I have collected datasets from OECD website as
+               well as the World Bank. I have yet to figure out what is the best
+               way to process data, my apology for the delay.")))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
