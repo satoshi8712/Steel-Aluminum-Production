@@ -2,7 +2,7 @@
 library(shiny)
 library(PPBDS.data)
 library(tidyverse)
-
+library(ggthemes)
 
 DP_LIVE_17102020190158566 <- read_csv("data/DP_LIVE_17102020190158566.csv", 
                                       col_names = TRUE, 
@@ -61,10 +61,14 @@ ui <- navbarPage(
 server <- function(input, output) {
     output$line_plot <- renderPlot({
        DP_LIVE_17102020190158566 %>%
-            filter(TIME == 2012) %>%
-            ggplot(aes(LOCATION, Value)) +
-            geom_point()
-    })
+            filter(TIME == 2018 | INDICATOR == "INWARD") %>%
+            ggplot(aes(reorder(LOCATION, Value), Value)) +
+            geom_col() +
+            scale_x_discrete(guide = guide_axis(n.dodge=3)) + 
+            theme_classic() +
+            labs(title = "Inward Foreign Direct Investment in 2018", 
+                 x = "Country", 
+                 y = "Value of FDI")})
 }
 # Run the application 
 shinyApp(ui = ui, server = server)
