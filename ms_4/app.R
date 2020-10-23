@@ -27,7 +27,7 @@ API_BM.KLT.DINV.CD.WD_DS2_en_csv_v2_1497113 <- read_csv("data/API_BM.KLT.DINV.CD
     
 # Define UI for application that draws a histogram
 ui <- navbarPage(
-    "Milestone 4 - Satoshi Yanaizu",
+    "Milestone 5 - Satoshi Yanaizu",
     tabPanel("Model",
              fluidPage(
                  titlePanel("Plot"),
