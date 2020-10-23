@@ -40,7 +40,7 @@ ui <- navbarPage(
     tabPanel("About", 
              titlePanel("About"),
              h3("Link to Repository"),
-             p("https://github.com/satoshi8712/milestone_4"),
+             p("https://github.com/satoshi8712/milestone"),
              h3("Project Progress"),
              p("I am thinking about doing something about foreign direct invest
                at the moment. I have collected two datasets, one  from OECD 
@@ -51,11 +51,9 @@ ui <- navbarPage(
                is the list of country codes and the corresponding country names. 
                I am yet to figure out what is the best way to process data, my 
                apology for the delay. But I have here made a priliminary graoh 
-               about country-specific value of FDI. My plan till next week is to 
-               consolidate my idea as to what variables do I want to look for 
-               and whether there are more appropriate sources of data -- I am 
-               sure that, regarding this sort of economic data, there are 
-               abundnace of dataset.")))
+               about country-specific value of FDI. As a progress from last 
+               week, I made a bar chart instead of scatterplot, and ordered the 
+               y axis from highest FDI value to the lowest.")))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
