@@ -3,36 +3,58 @@ library(shiny)
 library(PPBDS.data)
 library(tidyverse)
 library(ggthemes)
+library(readxl)
 
-DP_LIVE_17102020190158566 <- read_csv("data/DP_LIVE_17102020190158566.csv", 
-                                      col_names = TRUE, 
-                                      cols(
-    LOCATION = col_character(),
-    INDICATOR = col_character(),
-    SUBJECT = col_character(),
-    MEASURE = col_character(),
-    FREQUENCY = col_character(),
-    TIME = col_double(),
-    Value = col_double(),
-    `Flag Codes` = col_character()
-))
+steel_monthly <- read_excel("data/exp-2020-11-06_08_00_25.xlsx")
 
-API_BM.KLT.DINV.CD.WD_DS2_en_csv_v2_1497113 <- read_csv("data/API_BM.KLT.DINV.CD.WD_DS2_en_csv_v2_1497113.csv", 
-                                                        col_names = TRUE, 
-                                                        cols(
-    `Data Source` = col_character(),
-    `World Development Indicators` = col_character(),
-    X3 = col_character()
-))
+steel_yearly <- read_excel("data/exp-2020-11-06_07_56_38.xlsx", 
+                           skip = 1) %>% 
+    pivot_longer(cols = -Country, 
+                 names_to = "Years", 
+                 values_to = "Production",
+                 names_transform = list(Years = as.numeric)) %>% 
+    filter(Years >= 2008)
     
+
+steel_export <- read_excel("data/exp-2020-11-06_08_02_22.xlsx")
+
+aluminum_production <- read_excel("data/aluminum_production.xlsx",
+                                  skip = 1) %>%
+    select(-c("Sub-commodity", "2008.0", "2009.0", "2010.0", "2011.0", "2012.0",
+              "2013.0", "2014.0", "2015.0", "2016.0", "2017.0", "2018.0")) %>% 
+    rename("2008" = "...4", 
+           "2009" = "...6", 
+           "2010" = "...8", 
+           "2011" = "...10", 
+           "2012" = "...12", 
+           "2013" = "...14", 
+           "2014" = "...16", 
+           "2015" = "...18", 
+           "2016" = "...20", 
+           "2017" = "...22", 
+           "2018" = "...24", 
+           "Country" = "\n\tCountry") %>% 
+    pivot_longer(cols = -Country, 
+                 names_to = "Years", 
+                 values_to = "Production",
+                 names_transform = list(Years = as.numeric)) %>% 
+    filter(!is.na(Production))
+    
+
 # Define UI for application that draws a histogram
 ui <- navbarPage(
-    "Milestone 5 - Satoshi Yanaizu",
+    "Milestone 6 - Satoshi Yanaizu",
     tabPanel("Model",
              fluidPage(
                  titlePanel("Plot"),
-                     mainPanel(plotOutput("line_plot"))
-             )),
+                     mainPanel(sidebarLayout(
+                         sidebarPanel(
+                             selectInput(
+                                 "line_plot",
+                                 "Steel Production",
+                                 c("Option A" = "a", "Option B" = "b"))), 
+                         mainPanel(plotOutput("line_plot")))
+             ))),
     tabPanel("Discussion",
              titlePanel("Discussion Title"),
              p("Tour of the modeling choices you made and 
@@ -42,31 +64,35 @@ ui <- navbarPage(
              h3("Link to Repository"),
              p("https://github.com/satoshi8712/milestone"),
              h3("Project Progress"),
-             p("I am thinking about doing something about foreign direct invest
-               at the moment. I have collected two datasets, one  from OECD 
-               website and the other from the World Bank. The OCED one, 
-               DP_LIVE_17102020190158566, mesures 
-               both inflow and outflow of country-specific FDI for each year, 
-               while the WB dataset, API_BM.KLT.DINV.CD.WD_DS2_en_csv_v2_1497113, 
-               is the list of country codes and the corresponding country names. 
-               I am yet to figure out what is the best way to process data, my 
-               apology for the delay. But I have here made a priliminary graoh 
-               about country-specific value of FDI. As a progress from last 
-               week, I made a bar chart instead of scatterplot, and ordered the 
-               y axis from highest FDI value to the lowest.")))
+             p("I changed the theme of the project and decided to focus on the 
+               global trend in manifacturing industries. For this milestone, I 
+               found datasets about steel industries, one of which is about 
+               steel production from 2020 in each country. I cleaned the data,
+               and made a plot about China's growth in steel production. Before
+               next milestone, I plan to do three things: 1) make the plot more
+               interative by giving an option of which country to display 2) add
+               similar data about aluminum industry 3) think of model to use.")))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-    output$line_plot <- renderPlot({
-       DP_LIVE_17102020190158566 %>%
-            filter(TIME == 2018 | INDICATOR == "INWARD") %>%
-            ggplot(aes(reorder(LOCATION, Value), Value)) +
-            geom_col() +
-            scale_x_discrete(guide = guide_axis(n.dodge=3)) + 
-            theme_classic() +
-            labs(title = "Inward Foreign Direct Investment in 2018", 
-                 x = "Country", 
-                 y = "Value of FDI")})
+    output$line_plot <- renderPlot({ if_else(input$line_plot == "a", 
+                                             steel_yearly %>% 
+                                                 filter(Country == "China") %>% 
+                                                 ggplot(aes(x = Years, y = Production)) +
+                                                 geom_line() +
+                                                 labs(title = "Trend in China's Steel Production since 2000", 
+                                                      x = "Year", 
+                                                      y = "Production") +
+                                                 theme_bw(), 
+                                             steel_yearly %>% 
+                                                 filter(Country == "India") %>% 
+                                                 ggplot(aes(x = Years, y = Production)) +
+                                                 geom_line() +
+                                                 labs(title = "Trend in India's Steel Production since 2000", 
+                                                      x = "Year", 
+                                                      y = "Production") +
+                                                 theme_bw())
+       }) 
 }
 # Run the application 
 shinyApp(ui = ui, server = server)

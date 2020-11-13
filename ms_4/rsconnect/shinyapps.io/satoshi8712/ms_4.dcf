@@ -1,12 +1,12 @@
 name: ms_4
-title: ms_4
+title:
 username:
 account: satoshi8712
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3040566
-bundleId: 3776002
+bundleId: 3828500
 url: https://satoshi8712.shinyapps.io/ms_4/
-when: 1603492148.53347
+when: 1604679190.193
 asMultiple: FALSE
 asStatic: FALSE
