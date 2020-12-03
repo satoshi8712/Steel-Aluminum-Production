@@ -153,7 +153,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
                                              'Vietnam', 
                                              'World'), 
                                  selected = "China"),  
-                         radioButtons("global_axis",
+                         radioButtons("global_axis_1",
                                                                      "Choose a scale on Y-axis:",
                                                                      
                                                                      # Two scales based on Log 10 or arithmetic.
@@ -221,7 +221,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
                                          'United Kingdom', 
                                          'Venezuela'), 
                              selected = "China"),  
-                         radioButtons("global_axis",
+                         radioButtons("global_axis_2",
                                       "Choose a scale on Y-axis:",
                                       
                                       # Two scales based on Log 10 or arithmetic.
@@ -249,13 +249,12 @@ ui <- fluidPage(theme = shinytheme("journal"),
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-    output$line_plot_1 <- renderPlot({ if(input$global_axis == "Logarithmic"){
+    output$line_plot_1 <- renderPlot({ if(input$global_axis_1 == "Logarithmic"){
                                               steel_yearly %>% 
                                                  filter(Country %in% c("United States", input$country_choice_1)) %>% 
                                                  ggplot(aes(x = Years, y = Production, color = Country)) +
                                                  geom_line() +
             scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x), labels = scales::comma_format(accuracy = 1)) +
-            
                                                  labs(title = "Steel Production 2008-2018", 
                                                       x = "Year", 
                                                       y = "Production") +
@@ -272,7 +271,7 @@ server <- function(input, output) {
             }
        })
     
-    output$line_plot_2 <- renderPlot({ if(input$global_axis == "Logarithmic"){
+    output$line_plot_2 <- renderPlot({ if(input$global_axis_2 == "Logarithmic"){
         aluminum_production %>% 
             filter(Country %in% c("USA", input$country_choice_2)) %>% 
             ggplot(aes(x = Years, y = Production, color = Country)) +
