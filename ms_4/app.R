@@ -1,9 +1,17 @@
 
+
 library(shiny)
-library(PPBDS.data)
+library(shinythemes)
+library(dplyr)
 library(tidyverse)
-library(ggthemes)
-library(readxl)
+library(readr)
+library(janitor)
+library(gt)
+library(ggplot2)
+library(scales)
+library(plotly)
+library(reshape2)
+
 
 steel_monthly <- read_excel("data/exp-2020-11-06_08_00_25.xlsx")
 
@@ -43,15 +51,16 @@ aluminum_production <- read_excel("data/aluminum_production.xlsx",
     
 
 # Define UI for application that draws a histogram
-ui <- navbarPage(
+ui <- fluidPage(theme = shinytheme("journal"),
+                navbarPage(
     "Final Project Name",
-    tabPanel("Model",
+    tabPanel("Steel",
              fluidPage(
                  titlePanel("Plot"),
                      mainPanel(sidebarLayout(
                          sidebarPanel(
                              selectInput(
-                                 "country_choice",
+                                 "country_choice_1",
                                  "Country",
                                  choices = c('Albania', 
                                              'Algeria', 
@@ -142,13 +151,88 @@ ui <- navbarPage(
                                              'Uzbekistan', 
                                              'Venezuela', 
                                              'Vietnam', 
-                                             'World'))), 
-                         mainPanel(plotOutput("line_plot")))
+                                             'World'), 
+                                 selected = "China"),  
+                         radioButtons("global_axis",
+                                                                     "Choose a scale on Y-axis:",
+                                                                     
+                                                                     # Two scales based on Log 10 or arithmetic.
+                                                                     
+                                                                     choices = c("Arithmetic","Logarithmic"), 
+                                                                     
+                                                                     # Set default to "Arithmetic".
+                                                                     
+                                                                     selected = "Arithmetic")),
+                         mainPanel(plotOutput("line_plot_1")))
              ))),
-    tabPanel("Discussion",
-             titlePanel("Discussion Title"),
-             p("Tour of the modeling choices you made and 
-              an explanation of why you made them")),
+    tabPanel("Aluminum",
+             fluidPage(
+                 titlePanel("Plot"),
+                 mainPanel(sidebarLayout(
+                     sidebarPanel(
+                         selectInput(
+                             "country_choice_2",
+                             "Country",
+                             choices = c('Argentina', 
+                                         'Australia', 
+                                         'Azerbaijan', 
+                                         'Bahrain', 
+                                         'Bosnia & Herzegovina', 
+                                         'Brazil', 
+                                         'Cameroon', 
+                                         'Canada', 
+                                         'China', 
+                                         'Croatia', 
+                                         'Egypt', 
+                                         'France', 
+                                         'Germany', 
+                                         'Ghana', 
+                                         'Greece', 
+                                         'Iceland', 
+                                         'India', 
+                                         'Indonesia', 
+                                         'Iran', 
+                                         'Italy', 
+                                         'Japan', 
+                                         'Kazakhstan', 
+                                         'Malaysia', 
+                                         'Montenegro', 
+                                         'Mozambique', 
+                                         'Netherlands', 
+                                         'New Zealand', 
+                                         'Nigeria', 
+                                         'Norway', 
+                                         'Oman', 
+                                         'Poland', 
+                                         'Qatar', 
+                                         'Romania', 
+                                         'Russia', 
+                                         'Saudi Arabia', 
+                                         'Slovakia', 
+                                         'Slovenia', 
+                                         'South Africa', 
+                                         'Spain', 
+                                         'Sweden', 
+                                         'Tajikistan', 
+                                         'Turkey', 
+                                         'USA', 
+                                         'Ukraine', 
+                                         'United Arab Emirates', 
+                                         'United Kingdom', 
+                                         'Venezuela'), 
+                             selected = "China"),  
+                         radioButtons("global_axis",
+                                      "Choose a scale on Y-axis:",
+                                      
+                                      # Two scales based on Log 10 or arithmetic.
+                                      
+                                      choices = c("Arithmetic","Logarithmic"), 
+                                      
+                                      # Set default to "Arithmetic".
+                                      
+                                      selected = "Arithmetic")),
+                     mainPanel(plotOutput("line_plot_2")))
+                 ))),
     tabPanel("About", 
              titlePanel("About"),
              h3("Link to Repository"),
@@ -161,20 +245,54 @@ ui <- navbarPage(
                and made a plot about China's growth in steel production. Before
                next milestone, I plan to do three things: 1) make the plot more
                interative by giving an option of which country to display 2) add
-               similar data about aluminum industry 3) think of model to use.")))
+               similar data about aluminum industry 3) think of model to use."))))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-    output$line_plot <- renderPlot({ 
-                                             steel_yearly %>% 
-                                                 filter(Country == input$country_choice) %>% 
-                                                 ggplot(aes(x = Years, y = Production)) +
+    output$line_plot_1 <- renderPlot({ if(input$global_axis == "Logarithmic"){
+                                              steel_yearly %>% 
+                                                 filter(Country %in% c("United States", input$country_choice_1)) %>% 
+                                                 ggplot(aes(x = Years, y = Production, color = Country)) +
                                                  geom_line() +
-                                                 labs(title = "Trend in Steel Production, 2008-2018", 
+            scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x), labels = scales::comma_format(accuracy = 1)) +
+            
+                                                 labs(title = "Steel Production 2008-2018", 
                                                       x = "Year", 
                                                       y = "Production") +
-                                                 theme_bw()
-       }) 
+                                                 theme_bw()}
+        else{steel_yearly %>% 
+                filter(Country %in% c("United States", input$country_choice_1)) %>% 
+                ggplot(aes(x = Years, y = Production, color = Country)) +
+                geom_line() +
+                labs(title = "Steel Production, 2008-2018", 
+                     x = "Year", 
+                     y = "Production") +
+                theme_bw()
+            
+            }
+       })
+    
+    output$line_plot_2 <- renderPlot({ if(input$global_axis == "Logarithmic"){
+        aluminum_production %>% 
+            filter(Country %in% c("USA", input$country_choice_2)) %>% 
+            ggplot(aes(x = Years, y = Production, color = Country)) +
+            geom_line() +
+            scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x), labels = scales::comma_format(accuracy = 1)) +
+            labs(title = "Steel Production 2008-2018", 
+                 x = "Year", 
+                 y = "Production") +
+            theme_bw()}
+        else{aluminum_production %>% 
+                filter(Country %in% c("USA", input$country_choice_2)) %>% 
+                ggplot(aes(x = Years, y = Production, color = Country)) +
+                geom_line() +
+                labs(title = "Aluminum Production, 2008-2018", 
+                     x = "Year", 
+                     y = "Production") +
+                theme_bw()
+            
+        }
+    })
 }
 # Run the application 
 shinyApp(ui = ui, server = server)
