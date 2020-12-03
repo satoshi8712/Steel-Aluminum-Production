@@ -49,6 +49,19 @@ aluminum_production <- read_excel("data/aluminum_production.xlsx",
                  names_transform = list(Years = as.numeric)) %>% 
     filter(!is.na(Production))
     
+country_data <- read_csv("ms_4/data/countries of the world.csv", 
+                         col_types =  cols(
+                             .default = col_character(),
+                             Population = col_double(),
+                             `Area (sq. mi.)` = col_double(),
+                             `Infant mortality (per 1000 births)` = col_number(),
+                             `GDP ($ per capita)` = col_double(),
+                             `Literacy (%)` = col_number(),
+                             `Other (%)` = col_number(),
+                             Climate = col_number(),
+                             Birthrate = col_number(),
+                             Deathrate = col_number()
+                         ))
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme = shinytheme("journal"),
@@ -56,7 +69,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
     "Final Project Name",
     tabPanel("Steel",
              fluidPage(
-                 titlePanel("Plot"),
+                 titlePanel("Steel Production"),
                      mainPanel(sidebarLayout(
                          sidebarPanel(
                              selectInput(
@@ -167,7 +180,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
              ))),
     tabPanel("Aluminum",
              fluidPage(
-                 titlePanel("Plot"),
+                 titlePanel("Aluminum Production"),
                  mainPanel(sidebarLayout(
                      sidebarPanel(
                          selectInput(
@@ -233,19 +246,14 @@ ui <- fluidPage(theme = shinytheme("journal"),
                                       selected = "Arithmetic")),
                      mainPanel(plotOutput("line_plot_2")))
                  ))),
+    tabPanel("Model", 
+             titlePanel("Model")),
     tabPanel("About", 
              titlePanel("About"),
              h3("Link to Repository"),
              p("https://github.com/satoshi8712/milestone"),
              h3("Project Progress"),
-             p("I changed the theme of the project and decided to focus on the 
-               global trend in manifacturing industries. For this milestone, I 
-               found datasets about steel industries, one of which is about 
-               steel production from 2020 in each country. I cleaned the data,
-               and made a plot about China's growth in steel production. Before
-               next milestone, I plan to do three things: 1) make the plot more
-               interative by giving an option of which country to display 2) add
-               similar data about aluminum industry 3) think of model to use."))))
+             p("I did two of the tasks that we discussed when we last met: adding a interactive element to the plot and adding an plot about alminum production. In the next meeting, I hope to discuss more about models"))))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
