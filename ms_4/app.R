@@ -49,7 +49,7 @@ aluminum_production <- read_excel("data/aluminum_production.xlsx",
                  names_transform = list(Years = as.numeric)) %>% 
     filter(!is.na(Production))
     
-country_data <- read_csv("ms_4/data/countries of the world.csv", 
+country_data <- read_csv("data/countries of the world.csv", 
                          col_types =  cols(
                              .default = col_character(),
                              Population = col_double(),
