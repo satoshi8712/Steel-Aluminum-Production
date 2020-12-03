@@ -2,15 +2,13 @@
 
 library(shiny)
 library(shinythemes)
-library(dplyr)
 library(tidyverse)
 library(readr)
-library(janitor)
 library(gt)
 library(ggplot2)
-library(scales)
-library(plotly)
-library(reshape2)
+
+
+
 
 
 steel_monthly <- read_excel("data/exp-2020-11-06_08_00_25.xlsx")
