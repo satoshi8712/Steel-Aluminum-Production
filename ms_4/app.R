@@ -13,7 +13,8 @@ steel_yearly <- read_excel("data/exp-2020-11-06_07_56_38.xlsx",
                  names_to = "Years", 
                  values_to = "Production",
                  names_transform = list(Years = as.numeric)) %>% 
-    filter(Years >= 2008)
+    filter(Years >= 2008) %>% 
+    drop_na(Production)
     
 
 steel_export <- read_excel("data/exp-2020-11-06_08_02_22.xlsx")
@@ -43,16 +44,35 @@ aluminum_production <- read_excel("data/aluminum_production.xlsx",
 
 # Define UI for application that draws a histogram
 ui <- navbarPage(
-    "Milestone 6 - Satoshi Yanaizu",
+    "Final Project Name",
     tabPanel("Model",
              fluidPage(
                  titlePanel("Plot"),
                      mainPanel(sidebarLayout(
                          sidebarPanel(
                              selectInput(
-                                 "line_plot",
-                                 "Steel Production",
-                                 c("Option A" = "a", "Option B" = "b"))), 
+                                 "country_choice",
+                                 "Country",
+                                 choices = c('Albania', 
+                                             'Algeria', 
+                                             'Argentina', 
+                                             'Australia', 
+                                             'Austria', 
+                                             'Azerbaijan', 
+                                             'Bangladesh', 
+                                             'Belarus', 
+                                             'Belgium', 
+                                             'Bosnia and Herzegovina', 
+                                             'Brazil', 
+                                             'Bulgaria', 
+                                             'Canada', 
+                                             'Chile', 
+                                             'China', 
+                                             'Colombia', 
+                                             'Croatia', 
+                                             'Cuba', 
+                                             'Czech Republic',  
+                                             'D.P.R. Korea'))), 
                          mainPanel(plotOutput("line_plot")))
              ))),
     tabPanel("Discussion",
@@ -75,23 +95,15 @@ ui <- navbarPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-    output$line_plot <- renderPlot({ if_else(input$line_plot == "a", 
+    output$line_plot <- renderPlot({ 
                                              steel_yearly %>% 
-                                                 filter(Country == "China") %>% 
+                                                 filter(Country == input$country_choice) %>% 
                                                  ggplot(aes(x = Years, y = Production)) +
                                                  geom_line() +
                                                  labs(title = "Trend in China's Steel Production since 2000", 
                                                       x = "Year", 
                                                       y = "Production") +
-                                                 theme_bw(), 
-                                             steel_yearly %>% 
-                                                 filter(Country == "India") %>% 
-                                                 ggplot(aes(x = Years, y = Production)) +
-                                                 geom_line() +
-                                                 labs(title = "Trend in India's Steel Production since 2000", 
-                                                      x = "Year", 
-                                                      y = "Production") +
-                                                 theme_bw())
+                                                 theme_bw()
        }) 
 }
 # Run the application 
