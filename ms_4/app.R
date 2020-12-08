@@ -30,7 +30,7 @@ steel_2018 <- steel_yearly %>%
 
 steel_export <- read_excel("data/exp-2020-11-06_08_02_22.xlsx")
 
-fit_1 <- stan_glm(formula = Production ~ GDP + Agriculture + Industry + Service, 
+fit_1 <- stan_glm(formula = Production ~ Industry + Population + GDP, 
                   data = steel_country, 
                   refresh = 0) 
 
@@ -279,7 +279,23 @@ ui <- fluidPage(theme = shinytheme("journal"),
              h3("About Plot"), 
              p("The plot above visualizes the annual aluminum production in countries around the world. Data on the aluminum production in the United States is added by default You can select a country of your interest from the side on the left. Because the volume of aluminum production varies vastly between countries (i.e., China’s aluminum production is enormously large compared to other major producers), I added the option to choose Logarithmic scale on the Y axis in case a country’s production is significantly larger or smaller than the United States. You can choose this option with the button on the left.")),
     tabPanel("Model", 
-             titlePanel("Model")),
+             titlePanel("Model"), 
+             h3("Discussion of the model"), 
+             p("The purpose in this section was to predict which factor correlates with a given country’s steel production. I used country data from CIA’s world factbook which includes country-specific information such as: region, population, area, population density, coastline, net migration, infant mortality, GDP, literacy, death rate, percentage of agriculture/industry/service sector within overall economy. The general flow was to conceive multiple models with several of these variables to see which factor correlates with steel production."),
+             br(), 
+             p("The initial mode that I conceived was as follows:"),
+             withMathJax(),
+             helpText("$$ production_i = \\beta_{1}GDP_i + \\beta_{2}Population_i + \\beta_{3}Industry_i +  \\epsilon_i $$"),
+             p("
+This model is inspired by my assumption that as a country gets richer, more populated, and more industrialized, the larger demand there is for steel. However, my statistical analysis showed that the median posterior increase in steel production alongside with an increase in a country’s GDP or population is minimal. Thus, both GDP and population have to be taken off from the model."),
+             br(), 
+             p("Next, I suspected there would be negative correlation between steel production and the percentage of agriculture/service sector in a given country’s GDP, because both agrarian and service-based economy would supposedly have smaller demand for domestic manufacturing. With this assumption, I conceived my next potential model, which is as follows:"),
+             withMathJax(),
+             helpText("$$ production_i = \\beta_{1}Agriculture_i + \\beta_{2}Industry_i + \\beta_{3}Service_i +  \\epsilon_i $$"),
+             p("However, although the median posterior increase in steel production alongside with a relative increase in a country’s agriculture or service sector is large, it is accompanied by even large error (MAD_SD). Therefore, two concludes are deduced: 1) out of all the available variables from CIA world factbook, only a percentage of industry sector in a country’s GDP correlates with steel production, and it does positively 2) a country’s steel output depends more on the country’s unique industrial profile and other factors that cannot easily compared across nations."),
+             withMathJax(),
+             helpText("$$ production_i = \\beta_{1}Industry_i  +  \\epsilon_i $$"),
+             ),
     tabPanel("About",
              br(),
              h4("About Me"),
@@ -289,7 +305,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  science."),
              h4("About the project"),
              p("This project aims to capture the recent trend in country-to-country steel and aluminum production. It was inspired my project in Harvard Undergraduate Foreign Policy Initiative (HUFPI) about the industrial overcapacity in steel and aluminum. Despite the rising global demands for these essential commodities, global prices of steel and aluminum have stagnated since 2010s, allegedly due to overproduction in China escalating competitions and pushing steelmakers and aluminum producers in other countries out of business. In investigating the extent of overproduction and global trends in the volume of steel/aluminum production, I thought a platform like this is immensely useful in comparing countries’ industrial productions."),
-             p("You can find the link to my Github right here.", href="https://github.com/satoshi8712"))))
+             p("You can find the link to my Github right here: https://github.com/satoshi8712"))))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
