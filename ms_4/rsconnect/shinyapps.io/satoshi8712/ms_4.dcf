@@ -5,8 +5,8 @@ account: satoshi8712
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3040566
-bundleId: 3959720
+bundleId: 3959782
 url: https://satoshi8712.shinyapps.io/ms_4/
-when: 1607427070.72345
+when: 1607428521.70538
 asMultiple: FALSE
 asStatic: FALSE
