@@ -8,6 +8,8 @@ library(gt)
 library(ggplot2)
 library(dplyr)
 library(readxl)
+library(rstanarm)
+library(scales)
 
 
 
@@ -23,8 +25,29 @@ steel_yearly <- read_excel("data/exp-2020-11-06_07_56_38.xlsx",
     filter(Years >= 2008) %>% 
     filter(!is.na(Production))
     
+steel_2018 <- steel_yearly %>% 
+    filter(Years == 2018) 
 
 steel_export <- read_excel("data/exp-2020-11-06_08_02_22.xlsx")
+
+fit_1 <- stan_glm(formula = Production ~ GDP + Agriculture + Industry + Service, 
+                  data = steel_country, 
+                  refresh = 0) 
+
+print(fit_1, digits = 3)
+
+steel_country <- left_join(steel_2018, country_data, by = "Country") %>%  
+    mutate(Agriculture = str_replace(Agriculture, pattern = "0,", replacement = "")) %>% 
+    mutate(Industry = str_replace(Industry, pattern = "0,", replacement = "")) %>% 
+    mutate(Service = str_replace(Service, pattern = "0,", replacement = "")) %>% 
+    mutate(Agriculture = as.numeric(Agriculture)) %>% 
+    mutate(Industry = as.numeric(Industry)) %>% 
+    mutate(Service = as.numeric(Service)) %>% 
+    mutate(Agriculture = Agriculture / 1000) %>% 
+    mutate(Industry = Industry / 1000) %>% 
+    mutate(Service = Service / 1000) %>% 
+    mutate(GDP = `GDP ($ per capita)` * Population)
+    
 
 aluminum_production <- read_excel("data/aluminum_production.xlsx",
                                   skip = 1) %>%
@@ -166,17 +189,21 @@ ui <- fluidPage(theme = shinytheme("journal"),
                                              'World'), 
                                  selected = "China"),  
                          radioButtons("global_axis_1",
-                                                                     "Choose a scale on Y-axis:",
-                                                                     
-                                                                     # Two scales based on Log 10 or arithmetic.
-                                                                     
-                                                                     choices = c("Arithmetic","Logarithmic"), 
-                                                                     
-                                                                     # Set default to "Arithmetic".
-                                                                     
-                                                                     selected = "Arithmetic")),
+                         "Choose a scale on Y-axis:",
+                          # Two scales based on Log 10 or arithmetic.
+                         choices = c("Arithmetic","Logarithmic"), 
+                          # Set default to "Arithmetic".
+                         selected = "Arithmetic")),
                          mainPanel(plotOutput("line_plot_1")))
-             ))),
+             )), 
+             br(), 
+             h3("Background"), 
+             p("Steel is the world's most important engineering and construction material. It is used in every aspect of our lives; in cars and construction products, refrigerators and washing machines, cargo ships and surgical scalpels. It can be recycled over and over again without loss of property.
+"), 
+             br(), 
+             h3("About Plot"), 
+             p("The plot above visualizes the annual steel production in countries around the world. Data on the steel production in the United States is added by default You can select a country of your interest from the side on the left. Because the volume of steel production varies vastly between countries (i.e., China’s steel production is enormous and accounts for more than half of global production), I added the option to choose Logarithmic scale on the Y axis in case a country’s production is significantly larger or smaller than the United States. You can choose this option with the button on the left. 
+")),
     tabPanel("Aluminum",
              fluidPage(
                  titlePanel("Aluminum Production"),
@@ -244,15 +271,25 @@ ui <- fluidPage(theme = shinytheme("journal"),
                                       
                                       selected = "Arithmetic")),
                      mainPanel(plotOutput("line_plot_2")))
-                 ))),
+                 )), 
+             br(), 
+             h3("Background"), 
+             p("Aluminum is used in a huge variety of products including cans, foils, kitchen utensils, window frames, beer kegs and aeroplane parts. Aluminum is a good electrical conductor and is often used in electrical transmission lines. It is cheaper than copper and weight for weight is almost twice as good a conductor."), 
+             br(), 
+             h3("About Plot"), 
+             p("The plot above visualizes the annual aluminum production in countries around the world. Data on the aluminum production in the United States is added by default You can select a country of your interest from the side on the left. Because the volume of aluminum production varies vastly between countries (i.e., China’s aluminum production is enormously large compared to other major producers), I added the option to choose Logarithmic scale on the Y axis in case a country’s production is significantly larger or smaller than the United States. You can choose this option with the button on the left.")),
     tabPanel("Model", 
              titlePanel("Model")),
-    tabPanel("About", 
-             titlePanel("About"),
-             h3("Link to Repository"),
-             p("https://github.com/satoshi8712/milestone"),
-             h3("Project Progress"),
-             p("I did two of the tasks that we discussed when we last met: adding a interactive element to the plot and adding an plot about alminum production. In the next meeting, I hope to discuss more about models"))))
+    tabPanel("About",
+             br(),
+             h4("About Me"),
+             p("Hey there, my name is Satoshi. I am a sophomore at
+                 Harvard concentrating in Social Studies.
+                 Welcome  to my final project for Gov 50, a class in data
+                 science."),
+             h4("About the project"),
+             p("This project aims to capture the recent trend in country-to-country steel and aluminum production. It was inspired my project in Harvard Undergraduate Foreign Policy Initiative (HUFPI) about the industrial overcapacity in steel and aluminum. Despite the rising global demands for these essential commodities, global prices of steel and aluminum have stagnated since 2010s, allegedly due to overproduction in China escalating competitions and pushing steelmakers and aluminum producers in other countries out of business. In investigating the extent of overproduction and global trends in the volume of steel/aluminum production, I thought a platform like this is immensely useful in comparing countries’ industrial productions."),
+             p("You can find the link to my Github right here.", href="https://github.com/satoshi8712"))))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
