@@ -14,9 +14,8 @@ library(rstanarm)
 
 
 
-steel_monthly <- read_excel("data/exp-2020-11-06_08_00_25.xlsx")
 
-steel_yearly <- read_excel("data/exp-2020-11-06_07_56_38.xlsx", 
+steel_yearly <- read_excel("ms_4/data/exp-2020-11-06_07_56_38.xlsx", 
                            skip = 1) %>% 
     pivot_longer(cols = -Country, 
                  names_to = "Years", 
@@ -27,8 +26,6 @@ steel_yearly <- read_excel("data/exp-2020-11-06_07_56_38.xlsx",
     
 steel_2018 <- steel_yearly %>% 
     filter(Years == 2018) 
-
-steel_export <- read_excel("data/exp-2020-11-06_08_02_22.xlsx")
 
 fit_1 <- stan_glm(formula = Production ~ Industry + Population + GDP, 
                   data = steel_country, 
@@ -49,7 +46,7 @@ steel_country <- left_join(steel_2018, country_data, by = "Country") %>%
     mutate(GDP = `GDP ($ per capita)` * Population)
     
 
-aluminum_production <- read_excel("data/aluminum_production.xlsx",
+aluminum_production <- read_excel("ms_4/data/aluminum_production.xlsx",
                                   skip = 1) %>%
     select(-c("Sub-commodity", "2008.0", "2009.0", "2010.0", "2011.0", "2012.0",
               "2013.0", "2014.0", "2015.0", "2016.0", "2017.0", "2018.0")) %>% 
@@ -71,7 +68,7 @@ aluminum_production <- read_excel("data/aluminum_production.xlsx",
                  names_transform = list(Years = as.numeric)) %>% 
     filter(!is.na(Production))
     
-country_data <- read_csv("data/countries of the world.csv", 
+country_data <- read_csv("ms_4/data/countries of the world.csv", 
                          col_types =  cols(
                              .default = col_character(),
                              Population = col_double(),
