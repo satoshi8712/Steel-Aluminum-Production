@@ -1,4 +1,5 @@
 
+# Loading necesssary packages. 
 
 library(shiny)
 library(shinythemes)
@@ -13,7 +14,8 @@ library(rstanarm)
 
 
 
-
+# Cleaning data - for now, I have downloaded three datasets, about steel
+# production, aluminum production, country data, respectively. 
 
 steel_yearly <- read_excel("ms_4/data/exp-2020-11-06_07_56_38.xlsx", 
                            skip = 1) %>% 
@@ -27,24 +29,8 @@ steel_yearly <- read_excel("ms_4/data/exp-2020-11-06_07_56_38.xlsx",
 steel_2018 <- steel_yearly %>% 
     filter(Years == 2018) 
 
-fit_1 <- stan_glm(formula = Production ~ Industry + Population + GDP, 
-                  data = steel_country, 
-                  refresh = 0) 
-
-print(fit_1, digits = 3)
-
-steel_country <- left_join(steel_2018, country_data, by = "Country") %>%  
-    mutate(Agriculture = str_replace(Agriculture, pattern = "0,", replacement = "")) %>% 
-    mutate(Industry = str_replace(Industry, pattern = "0,", replacement = "")) %>% 
-    mutate(Service = str_replace(Service, pattern = "0,", replacement = "")) %>% 
-    mutate(Agriculture = as.numeric(Agriculture)) %>% 
-    mutate(Industry = as.numeric(Industry)) %>% 
-    mutate(Service = as.numeric(Service)) %>% 
-    mutate(Agriculture = Agriculture / 1000) %>% 
-    mutate(Industry = Industry / 1000) %>% 
-    mutate(Service = Service / 1000) %>% 
-    mutate(GDP = `GDP ($ per capita)` * Population)
-    
+# Because the formatting of years is not proper in the original dataset, I need
+# to manually rename them. 
 
 aluminum_production <- read_excel("ms_4/data/aluminum_production.xlsx",
                                   skip = 1) %>%
@@ -67,7 +53,8 @@ aluminum_production <- read_excel("ms_4/data/aluminum_production.xlsx",
                  values_to = "Production",
                  names_transform = list(Years = as.numeric)) %>% 
     filter(!is.na(Production))
-    
+
+
 country_data <- read_csv("ms_4/data/countries of the world.csv", 
                          col_types =  cols(
                              .default = col_character(),
@@ -82,15 +69,45 @@ country_data <- read_csv("ms_4/data/countries of the world.csv",
                              Deathrate = col_number()
                          ))
 
+# It is important to modify variables relating to industrial profiles, as in
+# the original dataset, agriculture/industry/service are character variables,
+# and include comma instead of period - so we need to use str_replace to have
+# valid numeric variables. 
+
+steel_country <- left_join(steel_2018, country_data, by = "Country") %>%  
+    mutate(Agriculture = str_replace(Agriculture, pattern = "0,", replacement = "")) %>% 
+    mutate(Industry = str_replace(Industry, pattern = "0,", replacement = "")) %>% 
+    mutate(Service = str_replace(Service, pattern = "0,", replacement = "")) %>% 
+    mutate(Agriculture = as.numeric(Agriculture)) %>% 
+    mutate(Industry = as.numeric(Industry)) %>% 
+    mutate(Service = as.numeric(Service)) %>% 
+    mutate(Agriculture = Agriculture / 1000) %>% 
+    mutate(Industry = Industry / 1000) %>% 
+    mutate(Service = Service / 1000) %>% 
+    mutate(GDP = `GDP ($ per capita)` * Population)
+
+
+
+fit_1 <- stan_glm(formula = Production ~ Industry + Population + GDP, 
+                  data = steel_country, 
+                  refresh = 0) 
+
+print(fit_1, digits = 3)
+
+    
+
+    
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme = shinytheme("journal"),
                 navbarPage(
-    "Final Project Name",
+    "Analysis of Steel and Aluminum Production",
     tabPanel("Steel",
              fluidPage(
                  titlePanel("Steel Production"),
                      mainPanel(sidebarLayout(
                          sidebarPanel(
+                             # Manually listing countries from steel dataset 
+                             # for the sidebar
                              selectInput(
                                  "country_choice_1",
                                  "Country",
@@ -219,6 +236,8 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  titlePanel("Aluminum Production"),
                  mainPanel(sidebarLayout(
                      sidebarPanel(
+                         # Manually listing countries from aluminum data
+                         # for the sidebar 
                          selectInput(
                              "country_choice_2",
                              "Country",
@@ -373,7 +392,9 @@ server <- function(input, output) {
                                                  filter(Country %in% c("United States", input$country_choice_1)) %>% 
                                                  ggplot(aes(x = Years, y = Production, color = Country)) +
                                                  geom_line() +
-            scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), labels = scales::comma_format(accuracy = 1)) +
+            # Adding functions from scales package for log scale
+            scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), 
+                          labels = scales::comma_format(accuracy = 1)) +
                                                  labs(title = "Steel Production 2008-2018", 
                                                       x = "Year", 
                                                       y = "Production") +
@@ -395,7 +416,9 @@ server <- function(input, output) {
             filter(Country %in% c("USA", input$country_choice_2)) %>% 
             ggplot(aes(x = Years, y = Production, color = Country)) +
             geom_line() +
-            scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), labels = scales::comma_format(accuracy = 1)) +
+            # Adding functions from scales package for log scale
+            scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), 
+                          labels = scales::comma_format(accuracy = 1)) +
             labs(title = "Steel Production 2008-2018", 
                  x = "Year", 
                  y = "Production") +
