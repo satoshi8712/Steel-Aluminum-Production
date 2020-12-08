@@ -9,7 +9,7 @@ library(ggplot2)
 library(dplyr)
 library(readxl)
 library(rstanarm)
-library(scales)
+
 
 
 
@@ -376,7 +376,7 @@ server <- function(input, output) {
                                                  filter(Country %in% c("United States", input$country_choice_1)) %>% 
                                                  ggplot(aes(x = Years, y = Production, color = Country)) +
                                                  geom_line() +
-            scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x), labels = scales::comma_format(accuracy = 1)) +
+            scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), labels = scales::comma_format(accuracy = 1)) +
                                                  labs(title = "Steel Production 2008-2018", 
                                                       x = "Year", 
                                                       y = "Production") +
@@ -398,7 +398,7 @@ server <- function(input, output) {
             filter(Country %in% c("USA", input$country_choice_2)) %>% 
             ggplot(aes(x = Years, y = Production, color = Country)) +
             geom_line() +
-            scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x), labels = scales::comma_format(accuracy = 1)) +
+            scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), labels = scales::comma_format(accuracy = 1)) +
             labs(title = "Steel Production 2008-2018", 
                  x = "Year", 
                  y = "Production") +
