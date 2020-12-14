@@ -10,7 +10,8 @@ library(ggplot2)
 library(dplyr)
 library(readxl)
 library(rstanarm)
-
+library(gtsummary)
+library(broom.mixed)
 
 
 
@@ -100,7 +101,7 @@ print(fit_1, digits = 3)
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme = shinytheme("journal"),
                 navbarPage(
-    "Analysis of Steel and Aluminum Production",
+    "Analysis of Global Steel and Aluminum Production",
     tabPanel("Steel",
              fluidPage(
                  titlePanel("Steel Production"),
@@ -336,8 +337,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
              p("The initial mode that I conceived was as follows:"),
              withMathJax(),
              helpText("$$ production_i = \\beta_{1}GDP_i + \\beta_{2}Population_i + \\beta_{3}Industry_i +  \\epsilon_i $$"),
-             p("
-This model is inspired by my assumption that as a country gets richer, more
+             p("This model is inspired by my assumption that as a country gets richer, more
                populated, and more industrialized, the larger demand there is
                for steel. However, my statistical analysis showed that the
                median posterior increase in steel production alongside with an
@@ -363,6 +363,8 @@ This model is inspired by my assumption that as a country gets richer, more
                and other factors that cannot easily compared across nations."),
              withMathJax(),
              helpText("$$ production_i = \\beta_{1}Industry_i  +  \\epsilon_i $$"),
+             br(),
+             gt_output("table")
              ),
     tabPanel("About",
              br(),
@@ -383,7 +385,14 @@ This model is inspired by my assumption that as a country gets richer, more
                In investigating the extent of overproduction and global trends in
                the volume of steel/aluminum production, I thought a platform like
                this is immensely useful in comparing countries’ industrial productions."),
-             p("You can find the link to my Github right here: https://github.com/satoshi8712"))))
+             p("You can find the link to my Github right here: https://github.com/satoshi8712"),
+             h4("Data Source"),
+             p("The data on steel production was published by the World Steel 
+             Association. The data on aluminum production was published by
+               British Geological Survey. Finally the data on country's properties
+               reflects content from CIA's World Factbook."))))
+
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -430,9 +439,16 @@ server <- function(input, output) {
                 labs(title = "Aluminum Production, 2008-2018", 
                      x = "Year", 
                      y = "Production") +
-                theme_bw()
-            
-        }
+                theme_bw()}})
+    
+    output$table <- render_gt({
+        
+        model <- stan_glm(formula = Production ~ Industry + Population + GDP, 
+                          data = steel_country, 
+                          refresh = 0) 
+        
+        tbl_regression(model, intercept = TRUE) %>%
+            as_gt()
     })
 }
 # Run the application 
