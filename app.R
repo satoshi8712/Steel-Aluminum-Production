@@ -16,7 +16,9 @@ library(broom.mixed)
 
 
 # Cleaning data - for now, I have downloaded three datasets, about steel
-# production, aluminum production, country data, respectively. 
+# production, aluminum production, country data, respectively. I needed to use
+# pivot_longer for both steel and aluminum dataset becaue they have years as a
+# variable by default. 
 
 steel_yearly <- read_excel("source/data/exp-2020-11-06_07_56_38.xlsx", 
                            skip = 1) %>% 
@@ -30,8 +32,8 @@ steel_yearly <- read_excel("source/data/exp-2020-11-06_07_56_38.xlsx",
 steel_2018 <- steel_yearly %>% 
     filter(Years == 2018) 
 
-# Because the formatting of years is not proper in the original dataset, I need
-# to manually rename them. 
+# Because the formatting of years is not proper in the original aluminum
+# dataset, I need to manually rename them. 
 
 aluminum_production <- read_excel("source/data/aluminum_production.xlsx",
                                   skip = 1) %>%
@@ -55,6 +57,9 @@ aluminum_production <- read_excel("source/data/aluminum_production.xlsx",
                  names_transform = list(Years = as.numeric)) %>% 
     filter(!is.na(Production))
 
+# For country data, I need to rename some countries; this is due to the fact 
+# that some countries have different names in steel dataset and this country 
+# data set. For example, Myanmar is called Burma in this dataset originally. 
 
 country_data <- read_csv("source/data/countries of the world.csv", 
                          col_types =  cols(
@@ -102,12 +107,6 @@ steel_country <- left_join(steel_2018, country_data, by = "Country") %>%
 
 
 
-fit_1 <- stan_glm(formula = Production ~ Population, 
-                  data = steel_country, 
-                  refresh = 0) 
-
-print(fit_1, digits = 3)
-
     
 
     
@@ -120,8 +119,10 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  titlePanel("Steel Production"),
                      mainPanel(sidebarLayout(
                          sidebarPanel(
+                             
                              # Manually listing countries from steel dataset 
                              # for the sidebar
+                             
                              selectInput(
                                  "country_choice_1",
                                  "Country",
@@ -218,9 +219,13 @@ ui <- fluidPage(theme = shinytheme("journal"),
                                  selected = "China"),  
                          radioButtons("global_axis_1",
                          "Choose a scale on Y-axis:",
+                         
                           # Two scales based on Log 10 or arithmetic.
+                         
                          choices = c("Arithmetic","Logarithmic"), 
+                         
                           # Set default to "Arithmetic".
+                         
                          selected = "Arithmetic")),
                          mainPanel(plotOutput("line_plot_1")))
              )), 
@@ -250,8 +255,10 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  titlePanel("Aluminum Production"),
                  mainPanel(sidebarLayout(
                      sidebarPanel(
+                         
                          # Manually listing countries from aluminum data
                          # for the sidebar 
+                         
                          selectInput(
                              "country_choice_2",
                              "Country",
@@ -413,17 +420,26 @@ ui <- fluidPage(theme = shinytheme("journal"),
 
 
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
     output$line_plot_1 <- renderPlot({ if(input$global_axis_1 == "Logarithmic"){
     steel_yearly %>% 
+            
+# Including the United States as a default point of comparison
+            
     filter(Country %in% c("United States", input$country_choice_1)) %>% 
     ggplot(aes(x = Years, y = Production, color = Country)) +
     geom_line() +
+            
 # Adding functions from scales package for log scale
+            
     scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), 
                            labels = scales::comma_format(accuracy = 1)) +
-    scale_x_continuous(breaks = c())
+            
+# Because the label of x axis had some problems (it somehow included numbers
+# such as 2007.5, I manually set them, also for the aluminum plot)
+            
+    scale_x_continuous(breaks = c(2008, 2010, 2012, 2014, 2016, 2018),
+                       labels = c("2008", "2010", "2012", "2014", "2016", "2018")) +
     labs(title = "Steel Production 2008-2018", 
          x = "Year", 
          y = "Production") +
@@ -432,6 +448,8 @@ server <- function(input, output) {
                 filter(Country %in% c("United States", input$country_choice_1)) %>% 
                 ggplot(aes(x = Years, y = Production, color = Country)) +
                 geom_line() +
+                scale_x_continuous(breaks = c(2008, 2010, 2012, 2014, 2016, 2018),
+                                   labels = c("2008", "2010", "2012", "2014", "2016", "2018")) +
                 labs(title = "Steel Production, 2008-2018", 
                      x = "Year", 
                      y = "Production") +
@@ -445,9 +463,13 @@ server <- function(input, output) {
             filter(Country %in% c("USA", input$country_choice_2)) %>% 
             ggplot(aes(x = Years, y = Production, color = Country)) +
             geom_line() +
+            
             # Adding functions from scales package for log scale
+            
             scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), 
                           labels = scales::comma_format(accuracy = 1)) +
+            scale_x_continuous(breaks = c(2008, 2010, 2012, 2014, 2016, 2018),
+                               labels = c("2008", "2010", "2012", "2014", "2016", "2018")) +
             labs(title = "Steel Production 2008-2018", 
                  x = "Year", 
                  y = "Production") +
@@ -456,6 +478,8 @@ server <- function(input, output) {
                 filter(Country %in% c("USA", input$country_choice_2)) %>% 
                 ggplot(aes(x = Years, y = Production, color = Country)) +
                 geom_line() +
+                scale_x_continuous(breaks = c(2008, 2010, 2012, 2014, 2016, 2018),
+                                   labels = c("2008", "2010", "2012", "2014", "2016", "2018")) +
                 labs(title = "Aluminum Production, 2008-2018", 
                      x = "Year", 
                      y = "Production") +
