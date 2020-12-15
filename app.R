@@ -17,7 +17,7 @@ library(broom.mixed)
 
 # Cleaning data - for now, I have downloaded three datasets, about steel
 # production, aluminum production, country data, respectively. I needed to use
-# pivot_longer for both steel and aluminum dataset becaue they have years as a
+# pivot_longer for both steel and aluminum dataset because they have years as a
 # variable by default. 
 
 steel_yearly <- read_excel("source/data/exp-2020-11-06_07_56_38.xlsx", 
