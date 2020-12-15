@@ -1,5 +1,5 @@
 
-# Loading necesssary packages. 
+# Loading necessary packages. 
 
 library(shiny)
 library(shinythemes)
@@ -68,7 +68,17 @@ country_data <- read_csv("ms_4/data/countries of the world.csv",
                              Climate = col_number(),
                              Birthrate = col_number(),
                              Deathrate = col_number()
-                         ))
+                         )) %>% 
+    mutate(Country = str_replace(Country, pattern = "Bosnia & Herzegovina", replacement = "Bosnia and Herzegovina")) %>% 
+    mutate(Country = str_replace(Country, pattern = "Korea, North", replacement = "D.P.R. Korea")) %>% 
+    mutate(Country = str_replace(Country, pattern = "Burma", replacement = "Myanmar")) %>% 
+    mutate(Country = str_replace(Country, pattern = "Slovakia", replacement = "Slovak Republic")) %>% 
+    mutate(Country = str_replace(Country, pattern = "Korea, South", replacement = "South Korea")) %>% 
+    mutate(Country = str_replace(Country, pattern = "Taiwan", replacement = "Taiwan, China")) %>%     
+    mutate(Country = str_replace(Country, pattern = "Trinidad & Tobago", replacement = "Trinidad and Tobago")) 
+    
+               
+    
 
 # It is important to modify variables relating to industrial profiles, as in
 # the original dataset, agriculture/industry/service are character variables,
@@ -85,11 +95,13 @@ steel_country <- left_join(steel_2018, country_data, by = "Country") %>%
     mutate(Agriculture = Agriculture / 1000) %>% 
     mutate(Industry = Industry / 1000) %>% 
     mutate(Service = Service / 1000) %>% 
-    mutate(GDP = `GDP ($ per capita)` * Population)
+    mutate(GDP = `GDP ($ per capita)` * Population) %>% 
+    drop_na()
 
 
 
-fit_1 <- stan_glm(formula = Production ~ Industry + Population + GDP, 
+
+fit_1 <- stan_glm(formula = Production ~ Agriculture + Industry + Service, 
                   data = steel_country, 
                   refresh = 0) 
 
@@ -443,7 +455,7 @@ server <- function(input, output) {
     
     output$table <- render_gt({
         
-        model <- stan_glm(formula = Production ~ Industry + Population + GDP, 
+        model <- stan_glm(formula = Production ~ Agriculture + Industry + Service, 
                           data = steel_country, 
                           refresh = 0) 
         
