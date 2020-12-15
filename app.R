@@ -379,12 +379,22 @@ ui <- fluidPage(theme = shinytheme("journal"),
              p("However, although the median posterior increase in steel
                production alongside with a relative increase in a country’s
                agriculture or service sector is large, it is accompanied by even
-               large error (MAD_SD). Therefore, two concludes are deduced: 1) out
-               of all the available variables from CIA world factbook, only a
-               percentage of industry sector in a country’s GDP correlates with
-               steel production, and it does positively 2) a country’s steel
-               output depends more on the country’s unique industrial profile
-               and other factors that cannot easily compared across nations."),
+               larger error (MAD_SD). The 95 percent confidence interval for the 
+               industry variable is also wide and includes negative value. 
+               Therefore, we cannot assume with full certainty that the size of 
+               the overall industry sector correlates positively with steel 
+               production. However, the result still suggests that some specific 
+               sectors within the whole industry sector would have a positive 
+               correlation with steel production. We would be able to have a full 
+               picture if we can quantify trends in the size of specific sectors 
+               (such as automobile and infrastrcture) within the whole industry 
+               sectors. Altogether, two conclusions are deduced: 1) out of all 
+               the available variables from CIA world factbook, only the size of 
+               a country's industry sector (at least some portion of it) in a 
+               country’s GDP could be interpreted as correlating posivively with 
+               steel production 2) a country’s steel output depends more on the 
+               country’s unique industrial profile and other factors that cannot 
+               easily compared across nations."),
              withMathJax(),
              helpText("$$ production_i = \\beta_{1}Industry_i  +  \\epsilon_i $$"),
              br()
