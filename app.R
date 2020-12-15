@@ -18,7 +18,7 @@ library(broom.mixed)
 # Cleaning data - for now, I have downloaded three datasets, about steel
 # production, aluminum production, country data, respectively. 
 
-steel_yearly <- read_excel("ms_4/data/exp-2020-11-06_07_56_38.xlsx", 
+steel_yearly <- read_excel("source/data/exp-2020-11-06_07_56_38.xlsx", 
                            skip = 1) %>% 
     pivot_longer(cols = -Country, 
                  names_to = "Years", 
@@ -33,7 +33,7 @@ steel_2018 <- steel_yearly %>%
 # Because the formatting of years is not proper in the original dataset, I need
 # to manually rename them. 
 
-aluminum_production <- read_excel("ms_4/data/aluminum_production.xlsx",
+aluminum_production <- read_excel("source/data/aluminum_production.xlsx",
                                   skip = 1) %>%
     select(-c("Sub-commodity", "2008.0", "2009.0", "2010.0", "2011.0", "2012.0",
               "2013.0", "2014.0", "2015.0", "2016.0", "2017.0", "2018.0")) %>% 
@@ -56,7 +56,7 @@ aluminum_production <- read_excel("ms_4/data/aluminum_production.xlsx",
     filter(!is.na(Production))
 
 
-country_data <- read_csv("ms_4/data/countries of the world.csv", 
+country_data <- read_csv("source/data/countries of the world.csv", 
                          col_types =  cols(
                              .default = col_character(),
                              Population = col_double(),
