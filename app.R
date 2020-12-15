@@ -416,17 +416,18 @@ ui <- fluidPage(theme = shinytheme("journal"),
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     output$line_plot_1 <- renderPlot({ if(input$global_axis_1 == "Logarithmic"){
-                                              steel_yearly %>% 
-                                                 filter(Country %in% c("United States", input$country_choice_1)) %>% 
-                                                 ggplot(aes(x = Years, y = Production, color = Country)) +
-                                                 geom_line() +
-            # Adding functions from scales package for log scale
-            scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), 
-                          labels = scales::comma_format(accuracy = 1)) +
-                                                 labs(title = "Steel Production 2008-2018", 
-                                                      x = "Year", 
-                                                      y = "Production") +
-                                                 theme_bw()}
+    steel_yearly %>% 
+    filter(Country %in% c("United States", input$country_choice_1)) %>% 
+    ggplot(aes(x = Years, y = Production, color = Country)) +
+    geom_line() +
+# Adding functions from scales package for log scale
+    scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x), 
+                           labels = scales::comma_format(accuracy = 1)) +
+    scale_x_continuous(breaks = c())
+    labs(title = "Steel Production 2008-2018", 
+         x = "Year", 
+         y = "Production") +
+    theme_bw()}
         else{steel_yearly %>% 
                 filter(Country %in% c("United States", input$country_choice_1)) %>% 
                 ggplot(aes(x = Years, y = Production, color = Country)) +
