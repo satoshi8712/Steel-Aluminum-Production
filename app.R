@@ -96,12 +96,13 @@ steel_country <- left_join(steel_2018, country_data, by = "Country") %>%
     mutate(Industry = Industry / 1000) %>% 
     mutate(Service = Service / 1000) %>% 
     mutate(GDP = `GDP ($ per capita)` * Population) %>% 
+    mutate(Population = as.numeric(Population)) %>% 
     drop_na()
 
 
 
 
-fit_1 <- stan_glm(formula = Production ~ Agriculture + Industry + Service, 
+fit_1 <- stan_glm(formula = Production ~ Population, 
                   data = steel_country, 
                   refresh = 0) 
 
@@ -364,6 +365,10 @@ ui <- fluidPage(theme = shinytheme("journal"),
                model, which is as follows:"),
              withMathJax(),
              helpText("$$ production_i = \\beta_{1}Agriculture_i + \\beta_{2}Industry_i + \\beta_{3}Service_i +  \\epsilon_i $$"),
+             br(), 
+             p("The regression table is as follows:"), 
+             gt_output("table"),
+             br(),
              p("However, although the median posterior increase in steel
                production alongside with a relative increase in a country’s
                agriculture or service sector is large, it is accompanied by even
@@ -375,8 +380,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
                and other factors that cannot easily compared across nations."),
              withMathJax(),
              helpText("$$ production_i = \\beta_{1}Industry_i  +  \\epsilon_i $$"),
-             br(),
-             gt_output("table")
+             br()
              ),
     tabPanel("About",
              br(),
@@ -402,7 +406,10 @@ ui <- fluidPage(theme = shinytheme("journal"),
              p("The data on steel production was published by the World Steel 
              Association. The data on aluminum production was published by
                British Geological Survey. Finally the data on country's properties
-               reflects content from CIA's World Factbook."))))
+               reflects content from CIA's World Factbook."),
+             p("Steel Data: https://www.worldsteel.org/steel-by-topic/statistics/steel-data-viewer/P1_crude_steel_total"),
+             p("Aluminum Data: https://www2.bgs.ac.uk/mineralsUK/statistics/worldStatistics.html"),
+             p("Country Data: https://www.kaggle.com/fernandol/countries-of-the-world"))))
 
 
 
@@ -460,7 +467,9 @@ server <- function(input, output) {
                           refresh = 0) 
         
         tbl_regression(model, intercept = TRUE) %>%
-            as_gt()
+            as_gt() %>% 
+            tab_header(title = "Regression of Country-by-country Steel Production", 
+                       subtitle = "How Industrial Compositions are Correlated with Steel Production?")
     })
 }
 # Run the application 
